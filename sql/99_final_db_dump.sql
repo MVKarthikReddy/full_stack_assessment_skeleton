@@ -1,3 +1,10 @@
+
+-- Host: localhost    Database: home_db
+-- ------------------------------------------------------
+
+-- To use home_db
+USE home_db
+
 -- To drop existing tables if they exist to avoid conflicts
 DROP TABLE IF EXISTS home;
 DROP TABLE IF EXISTS user;
@@ -28,12 +35,11 @@ CREATE TABLE user_home_tb (
     FOREIGN KEY (street_address) REFERENCES home(street_address)
 );
 
--- To insert (username and email) data into the user table from existing user_home table
+-- To insert (username and email) user data into the user table from existing user_home table
 INSERT INTO user (username, email)
 SELECT DISTINCT username, email
-FROM user_home; -- Assuming user_home_temp is the initial table with all data
-
--- To insert home data into the home table 
+FROM user_home; 
+-- To insert home data into the home table excluding user data
 INSERT INTO home (street_address, state, zip, sqft, beds, baths, list_price)
 SELECT DISTINCT street_address, state, zip, sqft, beds, baths, list_price
 FROM user_home;
