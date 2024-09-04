@@ -129,7 +129,97 @@ docker-compose -f docker-compose.initial.yml up --build -d
 
 ### solution
 
-> explain briefly your solution for this problem here
+## Database Normalization
+
+The database was normalized to improve data integrity and optimize query performance. The following changes were made to the `home_db` database:
+
+### Initial State
+
+Initially `home_db` database had a single table `user_home` with the following columns:
+
+- ( `username`, `email`, `street_address`, `state`, `zip`, `sqft`, `beds`, `baths`, `list_price`)
+
+-To use home_db database
+```sql
+USE home_db;
+```
+
+### Refactored Schema
+
+To normalise it I created three more tables:
+
+1. **`user` Table**
+   - To Store user information (username and email).
+   - **Columns**:
+     - `username` (Primary Key)
+     - `email`
+    ```sql
+    CREATE TABLE user (
+    username VARCHAR(255) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL
+    );
+    ```
+    
+
+2. **`home` Table**
+   - To Store home details.
+   - **Columns**:
+     - (`street_address` (Primary Key), `state`, `zip`, `sqft`, `beds`, `baths`, `list_price`)
+     
+     ```sql
+      CREATE TABLE home (
+          street_address VARCHAR(255) PRIMARY KEY,
+          state VARCHAR(255) NOT NULL,
+          zip VARCHAR(10) NOT NULL,
+          sqft DECIMAL(10,2) NOT NULL,
+          beds INT NOT NULL,
+          baths INT NOT NULL,
+          list_price DECIMAL(15,2) NOT NULL
+      );
+     ```
+
+3. **`user_home` Table**
+   - To establish a many-to-many relationship between users and homes.
+   - **Columns**:
+     - `username` (Foreign Key referencing `user.username`)
+     - `street_address` (Foreign Key referencing `home.street_address`)
+     ```sql
+     CREATE TABLE user_home_tb (
+          username VARCHAR(255),
+          street_address VARCHAR(255),
+          PRIMARY KEY (username, street_address),
+          FOREIGN KEY (username) REFERENCES user(username),
+          FOREIGN KEY (street_address) REFERENCES home(street_address)
+      );
+     ```
+
+### SQL Script
+
+The SQL script `99_final_db_dump.sql` contains the following:
+
+1. **Table Creation**:
+   - Dropped existing tables to ensure a clean slate.
+   - Created new `user`, `home` tables with appropriate primary and foreign keys.
+
+2. **Data Insertion**:
+   - Inserted data into `user` and `home` tables from the original `user_home` table.
+   - Populated the `user_home_tb` table to reflect the relationships between users and homes.
+
+### Execution
+
+To apply these changes we have made in the instance.
+
+```bash
+docker exec -i 1f00b6716ed8 mysql -u db_user -p home_db < sql/99_final_db_dump.sql
+```
+- `1f00b6716ed8 --> container_id` .
+
+- use docker to spin up **MySql** db container
+- this db instance has some data that will be needed for the exercise, included in it
+
+```bash
+docker-compose -f docker-compose.final.yml up --build -d
+```
 
 ## 2. React SPA
 
