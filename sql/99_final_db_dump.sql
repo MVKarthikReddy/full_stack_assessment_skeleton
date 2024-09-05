@@ -3,7 +3,7 @@
 -- ------------------------------------------------------
 
 -- To use home_db
-USE home_db
+USE home_db;
 
 -- To drop existing tables if they exist to avoid conflicts
 DROP TABLE IF EXISTS home;
