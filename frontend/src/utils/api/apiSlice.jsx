@@ -28,6 +28,8 @@ export const apiSlice = createApi({
       providesTags:['Users'],
     }),
 
+    // PUT : home/update-users
+    // To Update users corresponding to home
     updateUsersForHome: builder.mutation({
       query: ({ street_name, users }) => (
         {
@@ -35,6 +37,7 @@ export const apiSlice = createApi({
         method: 'PUT',
         body: { street_name, users },
       }),
+      // For caching and refetching the data for realtime updates
       invalidatesTags: (result, error, arg) => [
        'Homes',
        'Users'
