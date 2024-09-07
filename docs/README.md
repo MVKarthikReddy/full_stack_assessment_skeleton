@@ -482,6 +482,7 @@ To configure tailwing in our application :
 ## Pagination
 
 Pagination has been implemented to improve performance.
+By default no.of records per page are 50. But we can set our required number of records per page dynamically and this number must be 50 or more than 50.
 
 ## Error Handling
 
@@ -490,6 +491,13 @@ Error handling is implemented for all API requests:
 - **Error Messages**: Clear error messages are displayed if API calls fail.
 - **Retry Mechanism**: Users can retry failed API requests.
 
+  It will return all the homes data corresponding to a user
+  ```javascript
+    const { data, isLoading, isError } = useGetHomesByUserQuery(
+      { username: selectedUser }
+    );
+  ```
+  When we send a request **isLoading** will be set as true (as the Promise is pending), when ever request got success, the response will be stored in **data** field and **isLoading**, **isError** will be set to false.
 
 
 ## 3. Backend API development on Node
@@ -551,7 +559,253 @@ Error handling is implemented for all API requests:
 
 ### solution
 
-> explain briefly your solution for this problem here
+## Technologies
+
+- **Nest.js** - A progressive Node.js framework for building efficient and scalable server-side applications.
+- **TypeORM** - An ORM tool used to manage database operations with MySQL.
+- **MySQL** - A relational database management system used for storing user and home data.
+
+
+## Installation
+
+### Prerequisites
+
+Before running this backend, ensure that you have the following installed:
+
+- **Node.js**: >= 16.x
+- **MySQL**: Ensure you have a running MySQL instance.
+
+### Steps to Install
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/MVKarthikReddy/full_stack_assessment_skeleton.git
+   ```
+
+2. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+
+3. Install dependencies:
+   It will install all the dependencies that are present in the package.json file.
+   
+   ```bash
+   npm install
+   ```
+
+## Environment Variables
+
+`.env` file in the root directory:
+
+```plaintext
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=db_user
+DB_PASSWORD=6equj5_db_user
+DB_DATABASE=home_db
+```
+
+ With the help of `@nestjs/config` package we can access these variables in Nest.js
+
+## Database Configuration
+
+We use **TypeORM** for database operations. The database connection is configured through the `TypeOrmModule` in `app.module.ts`. The MySQL connection is established using the environment variables provided in the `.env` file.
+
+To connect with mysql using TyptORM
+```javascript
+  TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: process.env.DB_USER_NAME,
+      password: process.env.DB_PASS,
+      database: process.env.DB_NAME,
+      entities: [User, Home], // Entities are the classes that represent the Tables in the database
+      synchronize: true,
+    }),
+```
+
+## API Endpoints
+
+The backend exposes the following REST APIs:
+
+### User Endpoints
+
+- **GET /user/find-all**
+  Returns all users in the database.
+
+    Request:
+      ```bash
+        GET /user/find-all
+      ```
+    
+    Response:
+      ```json
+        [
+          {
+            "username": "user1",
+            "email": "user1@example.com"
+          },
+          {
+            "username": "user2",
+            "email": "user2@example.com"
+          }
+        ]
+      ```
+
+- **GET /user/find-by-home**  
+  Retrieves all users associated with a given home.
+
+    Request:
+      ```bash
+        GET /user/find-by-home/:street_name
+      ```
+    
+    Response:
+      ```json
+        [
+          {
+            "username": "user1",
+            "email": "user1@example.com"
+          },
+          {
+            "username": "user2",
+            "email": "user2@example.com"
+          }
+        ]
+      ```
+
+
+### Home Endpoints
+
+- **GET /home/find-by-user**  
+  Retrieves all homes associated with a given user.
+  
+   Request:
+      ```bash
+        GET /home/find-by-user/:username
+      ```
+    
+   Response:
+      ```json
+          [
+            {
+              "street_name": "10008 Shanel Fields",
+              "state": "Mississippi",
+              "zip": "",
+              "sqft": "1404.19",
+              "beds": 2,
+              "baths": 2,
+              "list_price": "984358.00"
+            },
+            {
+              "street_name": "10270 Gusikowski Hill",
+              "state": "Oregon",
+              "zip": "",
+              "sqft": "2115.21",
+              "beds": 5,
+              "baths": 1,
+              "list_price": "412051.00"
+            },
+            ..
+            ..
+            ..
+          ]
+      ```
+        
+       
+
+- **POST /home/update-users**  
+  Updates the users associated with a home (idempotent).
+
+   Request:
+      ```bash
+        GET /home/update-users
+      ```
+      Request Body:
+      ```json
+          {
+              "street_name": "99949 Kerluke Corners",
+              "users": [
+                "user1",
+                "user2",
+                "user7",
+                "user5",
+                "user6",
+                "user9"
+                ]
+          }
+      ```
+    
+   Response:
+      ```json
+          {
+            "street_name": "99949 Kerluke Corners",
+            "state": "Arizona",
+            "zip": "",
+            "sqft": "889.56",
+            "beds": 5,
+            "baths": 2,
+            "list_price": "684658.00",
+            "users": [
+              {
+                "username": "user1",
+                "email": "user1@example.org"
+              },
+              {
+                "username": "user2",
+                "email": "user2@example.org"
+              },
+              {
+                "username": "user5",
+                "email": "user5@example.org"
+              },
+              {
+                "username": "user6",
+                "email": "user6@example.org"
+              },
+              {
+                "username": "user7",
+                "email": "user7@example.org"
+              },
+              {
+                "username": "user9",
+                "email": "user9@example.org"
+              }
+            ]
+          }
+      ```
+
+
+## Running the Application
+
+1. To start this Nest.js application, run the following command:
+
+It will run on watch mode
+```bash
+  npm run start:dev 
+```
+
+This will start the application on `http://localhost:3000`.
+
+2. Make sure to have MySQL running and the database properly configured before running the server.
+
+   If not, run this docker command:
+   - To spin up **MySql** db container
+       
+    ```bash
+      docker-compose -f docker-compose.final.yml up --build -d
+    ```
+
+### Testing
+
+You can run unit tests using:
+
+```bash
+  npm run test
+```
+
 
 ## Submission Guidelines
 
