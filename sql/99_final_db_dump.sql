@@ -1,4 +1,3 @@
-
 -- Host: localhost    Database: home_db
 -- ------------------------------------------------------
 
@@ -39,6 +38,7 @@ CREATE TABLE user_home_tb (
 INSERT INTO user (username, email)
 SELECT DISTINCT username, email
 FROM user_home; 
+
 -- To insert home data into the home table excluding user data
 INSERT INTO home (street_address, state, zip, sqft, beds, baths, list_price)
 SELECT DISTINCT street_address, state, zip, sqft, beds, baths, list_price
