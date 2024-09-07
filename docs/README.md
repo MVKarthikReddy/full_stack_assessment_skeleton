@@ -153,6 +153,7 @@ To normalise it I created three more tables:
    - **Columns**:
      - `username` (Primary Key)
      - `email`
+       
     ```sql
     CREATE TABLE user (
     username VARCHAR(255) PRIMARY KEY,
@@ -183,6 +184,7 @@ To normalise it I created three more tables:
    - **Columns**:
      - `username` (Foreign Key referencing `user.username`)
      - `street_address` (Foreign Key referencing `home.street_address`)
+       
      ```sql
      CREATE TABLE user_home_tb (
           username VARCHAR(255),
@@ -310,20 +312,15 @@ docker-compose -f docker-compose.final.yml up --build -d
 
 ### solution
 
-- **Data Fetching with RTK Query**: Efficiently fetch and cache data from the backend for users and homes.
-- **State Management**: Manage application state using Redux Toolkit, ensuring smooth transitions between states.
-- **Pagination**: Provides pagination to improve performance and efficiently handle large datasets.
-- **Responsive UI**: Tailwind CSS ensures that the app is responsive across different devices.
-- **Error Handling**: Comprehensive error handling for API requests and smooth UI behavior during failures.
-- **Interactive Home-User Relationships**: View and edit users related to a particular home with dynamic modals for easy interaction.
+I used the following **Techstack**
 
-## Tech Stack
 - **Vite-React**: Lightweight and fast React-based framework for building the frontend.
 - **Redux Toolkit (RTK Query)**: For state management, data fetching, caching, and quick UI updates.
 - **Tailwind CSS**: Utility-first CSS framework for responsive and maintainable styles.
 - **React Loading Skeleton**: Simple and effective loading states during data fetching.
 
-## Installation
+
+## To run this frontend vite-react app
 
 1. Clone the repository:
     ```bash
@@ -331,17 +328,61 @@ docker-compose -f docker-compose.final.yml up --build -d
     cd frontend
     ```
 
-2. Install the dependencies:
+2. Install the dependencies: (It will install all the dependencies from the package.json file which is in the frontend folder)
+   
+     ## Dependencies
+
+    The following dependencies were used to develop this project:
+    
+    | Dependency                   | Version  |
+    |-------------------------------|----------|
+    | @reduxjs/toolkit               | ^2.2.7   |
+    | react                          | ^18.3.1  |
+    | react-dom                      | ^18.3.1  |
+    | react-loading-skeleton         | ^3.4.0   |
+    | react-redux                    | ^9.1.2   |
+    | react-router-dom               | ^6.26.1  |
+    
+    ### Dev Dependencies
+    
+    These tools and configurations were used during development:
+    
+    | Dev Dependency                 | Version  |
+    |---------------------------------|----------|
+    | @eslint/js                      | ^9.9.0   |
+    | @types/react                    | ^18.3.3  |
+    | @types/react-dom                | ^18.3.0  |
+    | @vitejs/plugin-react            | ^4.3.1   |
+    | autoprefixer                    | ^10.4.20 |
+    | eslint                          | ^9.9.0   |
+    | eslint-plugin-react             | ^7.35.0  |
+    | eslint-plugin-react-hooks       | ^5.1.0-rc.0 |
+    | eslint-plugin-react-refresh     | ^0.4.9   |
+    | globals                         | ^15.9.0  |
+    | postcss                         | ^8.4.45  |
+    | tailwindcss                     | ^3.4.10  |
+    | vite                            | ^5.4.1   |
+    
+    To install these dependencies, simply run the following command:
+
     ```bash
     npm install
     ```
 
-3. Start the development server:
+4. Start the development server: (It will run the server locally on port 5173)
     ```bash
     npm run dev
     ```
 
-4. Access the app in your browser at `http://localhost:5173`.
+5. Access the app in your browser at `http://localhost:5173`.
+
+## Environment Variables
+
+`.env` file in the backend directory:
+
+```plaintext
+  BACKEND_URL = "http://localhost:3000"
+```
 
 ## API Integration
 
@@ -352,26 +393,106 @@ This frontend interacts with the following REST APIs from the backend:
 - **/user/find-by-home**: Fetches all users related to a particular home.
 - **/home/update-users**: Updates the users related to a home.
 
-## Pagination
-
-Pagination has been implemented to improve performance.
-
 ## State Management & Data Fetching
 
 **RTK Query** is used to fetch and cache API data efficiently. Here’s how it works:
 - **Data Caching**: Improves performance by storing previously fetched data.
 - **Optimistic Updates**: Updates the UI instantly before the API request completes, making the app feel faster.
 - **Error Handling**: Gracefully handles API errors with appropriate error messages and fallback UI.
+  
+  location : frontend/src/utils/api/apiSlice.jsx
+  ```javascript
+    import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+    export const apiSlice = createApi({
+      reducerPath: 'api', 
+      baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BACKEND_API_URL}` }), // Setting base url where your backend runs
+    
+      tagTypes: ['Users', 'Homes'], // To manage cache invalidation and data refetching efficiently
+      endpoints: (builder) => ({ 
+    
+        // GET : user/find-all
+        // To Retrieve all the users
+        getUsers: builder.query({ 
+          query: () => 'user/find-all',
+          providesTags: ['Users'],
+        }),
+    
+        // GET : home/find-by-user/${username}
+        // To Retrieve all the homes corresponding to a user
+        getHomesByUser: builder.query({
+          query: ({ username }) => `home/find-by-user/${username}`,
+          providesTags:  ['Homes'],
+        }),
+    
+        // GET : user/find-by-home/${streetName}
+        // To Retrieve all the users corresponding to a home
+        getUsersByHome: builder.query({
+          query: (streetName) => `user/find-by-home/${encodeURIComponent(streetName)}`,
+          providesTags:['Users'],
+        }),
+    
+        // PUT : home/update-users
+        // To Update users corresponding to home
+        updateUsersForHome: builder.mutation({
+          query: ({ street_name, users }) => (
+            {
+            url: 'home/update-users',
+            method: 'PUT',
+            body: { street_name, users },
+          }),
+          // For caching and refetching the data for realtime updates
+          invalidatesTags: (result, error, arg) => [
+           'Homes',
+           'Users'
+          ],
+        }),
+      }),
+    });
+    
+    export const {
+      useGetUsersQuery,
+      useGetHomesByUserQuery,
+      useGetUsersByHomeQuery,
+      useUpdateUsersForHomeMutation,
+    } = apiSlice;
+  ```
+
 
 ## Tailwind CSS for Styling
 
-Tailwind CSS is used for styling the UI. It allows for quick customization and ensures that the app is responsive across different screen sizes, including mobile, tablet, and desktop.
+Tailwind CSS is used for styling the UI.
 
-### Key Tailwind Utilities:
-- `flex`, `grid`, and `block` for layout.
-- `bg-gray-100`, `bg-blue-500`, etc., for background colors.
-- `text-sm`, `text-lg`, and `text-center` for text styling.
-- `p-4`, `m-2`, etc., for spacing.
+To configure tailwing in our application : 
+1. Installing tailwind and generating tailwind.config.js and postcss.config.js
+  ```bash
+    npm install -D tailwindcss postcss autoprefixer
+    npx tailwindcss init -p
+  ```
+2. adding the paths to all of our template files in tailwind.config.js file.
+   ```javascript
+      export default {
+        content: [
+          "./index.html",
+          "./src/**/*.{js,ts,jsx,tsx}",
+        ],
+        theme: {
+          extend: {},
+        },
+        plugins: [],
+      }
+   ```
+3. Adding tailwind directives to our index.css file
+   ```css
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+   ```
+   
+## Pagination
+
+Pagination has been implemented to improve performance.
+By default no.of records per page are 50. But we can set our required number of records per page dynamically and this number must be 50 or more than 50.
 
 ## Error Handling
 
@@ -380,6 +501,13 @@ Error handling is implemented for all API requests:
 - **Error Messages**: Clear error messages are displayed if API calls fail.
 - **Retry Mechanism**: Users can retry failed API requests.
 
+  It will return all the homes data corresponding to a user
+  ```javascript
+    const { data, isLoading, isError } = useGetHomesByUserQuery(
+      { username: selectedUser }
+    );
+  ```
+  When we send a request **isLoading** will be set as true (as the Promise is pending), when ever request got success, the response will be stored in **data** field and **isLoading**, **isError** will be set to false.
 
 
 ## 3. Backend API development on Node
@@ -441,7 +569,253 @@ Error handling is implemented for all API requests:
 
 ### solution
 
-> explain briefly your solution for this problem here
+## Technologies
+
+- **Nest.js** - A progressive Node.js framework for building efficient and scalable server-side applications.
+- **TypeORM** - An ORM tool used to manage database operations with MySQL.
+- **MySQL** - A relational database management system used for storing user and home data.
+
+
+## Installation
+
+### Prerequisites
+
+Before running this backend, ensure that you have the following installed:
+
+- **Node.js**: >= 16.x
+- **MySQL**: Ensure you have a running MySQL instance.
+
+### Steps to Install
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/MVKarthikReddy/full_stack_assessment_skeleton.git
+   ```
+
+2. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+
+3. Install dependencies:
+   It will install all the dependencies that are present in the package.json file.
+   
+   ```bash
+   npm install
+   ```
+
+## Environment Variables
+
+`.env` file in the backend directory:
+
+```plaintext
+  DB_USER_NAME = "db_user"
+  DB_PASS = "6equj5_db_user"
+  DB_NAME = "home_db"
+  DB_TYPE = "mysql"
+  FRONTEND_URL = "http://localhost:5173"
+```
+
+ With the help of `@nestjs/config` package we can access these variables in Nest.js
+
+## Database Configuration
+
+We use **TypeORM** for database operations. The database connection is configured through the `TypeOrmModule` in `app.module.ts`. The MySQL connection is established using the environment variables provided in the `.env` file.
+
+To connect with mysql using TyptORM
+```javascript
+  TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: process.env.DB_USER_NAME,
+      password: process.env.DB_PASS,
+      database: process.env.DB_NAME,
+      entities: [User, Home], // Entities are the classes that represent the Tables in the database
+      synchronize: true,
+    }),
+```
+
+## API Endpoints
+
+The backend exposes the following REST APIs:
+
+### User Endpoints
+
+- **GET /user/find-all**
+  Returns all users in the database.
+
+    Request:
+      ```bash
+        GET /user/find-all
+      ```
+    
+    Response:
+      ```json
+        [
+          {
+            "username": "user1",
+            "email": "user1@example.com"
+          },
+          {
+            "username": "user2",
+            "email": "user2@example.com"
+          }
+        ]
+      ```
+
+- **GET /user/find-by-home**  
+  Retrieves all users associated with a given home.
+
+    Request:
+      ```bash
+        GET /user/find-by-home/:street_name
+      ```
+    
+    Response:
+      ```json
+        [
+          {
+            "username": "user1",
+            "email": "user1@example.com"
+          },
+          {
+            "username": "user2",
+            "email": "user2@example.com"
+          }
+        ]
+      ```
+
+
+### Home Endpoints
+
+- **GET /home/find-by-user**  
+  Retrieves all homes associated with a given user.
+  
+   Request:
+      ```bash
+        GET /home/find-by-user/:username
+      ```
+    
+   Response:
+      ```json
+          [
+            {
+              "street_name": "10008 Shanel Fields",
+              "state": "Mississippi",
+              "zip": "",
+              "sqft": "1404.19",
+              "beds": 2,
+              "baths": 2,
+              "list_price": "984358.00"
+            },
+            {
+              "street_name": "10270 Gusikowski Hill",
+              "state": "Oregon",
+              "zip": "",
+              "sqft": "2115.21",
+              "beds": 5,
+              "baths": 1,
+              "list_price": "412051.00"
+            },
+            ..
+            ..
+            ..
+          ]
+      ```
+        
+       
+
+- **POST /home/update-users**  
+  Updates the users associated with a home (idempotent).
+
+   Request:
+      ```bash
+        GET /home/update-users
+      ```
+      Request Body:
+      ```json
+          {
+              "street_name": "99949 Kerluke Corners",
+              "users": [
+                "user1",
+                "user2",
+                "user7",
+                "user5",
+                "user6",
+                "user9"
+                ]
+          }
+      ```
+    
+   Response:
+      ```json
+          {
+            "street_name": "99949 Kerluke Corners",
+            "state": "Arizona",
+            "zip": "",
+            "sqft": "889.56",
+            "beds": 5,
+            "baths": 2,
+            "list_price": "684658.00",
+            "users": [
+              {
+                "username": "user1",
+                "email": "user1@example.org"
+              },
+              {
+                "username": "user2",
+                "email": "user2@example.org"
+              },
+              {
+                "username": "user5",
+                "email": "user5@example.org"
+              },
+              {
+                "username": "user6",
+                "email": "user6@example.org"
+              },
+              {
+                "username": "user7",
+                "email": "user7@example.org"
+              },
+              {
+                "username": "user9",
+                "email": "user9@example.org"
+              }
+            ]
+          }
+      ```
+
+
+## Running the Application
+
+1. To start this Nest.js application, run the following command:
+
+It will run on watch mode
+```bash
+  npm run start:dev 
+```
+
+This will start the application on `http://localhost:3000`.
+
+2. Make sure to have MySQL running and the database properly configured before running the server.
+
+   If not, run this docker command:
+   - To spin up **MySql** db container
+       
+    ```bash
+      docker-compose -f docker-compose.final.yml up --build -d
+    ```
+
+### Testing
+
+You can run unit tests using:
+
+```bash
+  npm run test
+```
+
 
 ## Submission Guidelines
 
