@@ -310,7 +310,77 @@ docker-compose -f docker-compose.final.yml up --build -d
 
 ### solution
 
-> explain briefly your solution for this problem here
+- **Data Fetching with RTK Query**: Efficiently fetch and cache data from the backend for users and homes.
+- **State Management**: Manage application state using Redux Toolkit, ensuring smooth transitions between states.
+- **Pagination**: Provides pagination to improve performance and efficiently handle large datasets.
+- **Responsive UI**: Tailwind CSS ensures that the app is responsive across different devices.
+- **Error Handling**: Comprehensive error handling for API requests and smooth UI behavior during failures.
+- **Interactive Home-User Relationships**: View and edit users related to a particular home with dynamic modals for easy interaction.
+
+## Tech Stack
+- **Vite-React**: Lightweight and fast React-based framework for building the frontend.
+- **Redux Toolkit (RTK Query)**: For state management, data fetching, caching, and quick UI updates.
+- **Tailwind CSS**: Utility-first CSS framework for responsive and maintainable styles.
+- **React Loading Skeleton**: Simple and effective loading states during data fetching.
+
+## Installation
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/MVKarthikReddy/full_stack_assessment_skeleton.git
+    cd frontend
+    ```
+
+2. Install the dependencies:
+    ```bash
+    npm install
+    ```
+
+3. Start the development server:
+    ```bash
+    npm run dev
+    ```
+
+4. Access the app in your browser at `http://localhost:5173`.
+
+## API Integration
+
+This frontend interacts with the following REST APIs from the backend:
+
+- **/user/find-all**: Fetches all users from the database.
+- **/home/find-by-user**: Fetches all homes related to a specific user.
+- **/user/find-by-home**: Fetches all users related to a particular home.
+- **/home/update-users**: Updates the users related to a home.
+
+## Pagination
+
+Pagination has been implemented to improve performance.
+
+## State Management & Data Fetching
+
+**RTK Query** is used to fetch and cache API data efficiently. Here’s how it works:
+- **Data Caching**: Improves performance by storing previously fetched data.
+- **Optimistic Updates**: Updates the UI instantly before the API request completes, making the app feel faster.
+- **Error Handling**: Gracefully handles API errors with appropriate error messages and fallback UI.
+
+## Tailwind CSS for Styling
+
+Tailwind CSS is used for styling the UI. It allows for quick customization and ensures that the app is responsive across different screen sizes, including mobile, tablet, and desktop.
+
+### Key Tailwind Utilities:
+- `flex`, `grid`, and `block` for layout.
+- `bg-gray-100`, `bg-blue-500`, etc., for background colors.
+- `text-sm`, `text-lg`, and `text-center` for text styling.
+- `p-4`, `m-2`, etc., for spacing.
+
+## Error Handling
+
+Error handling is implemented for all API requests:
+- **Loading States**: A loading spinner or skeleton is shown while data is being fetched.
+- **Error Messages**: Clear error messages are displayed if API calls fail.
+- **Retry Mechanism**: Users can retry failed API requests.
+
+
 
 ## 3. Backend API development on Node
 
