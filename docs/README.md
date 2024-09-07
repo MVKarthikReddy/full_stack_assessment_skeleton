@@ -310,20 +310,15 @@ docker-compose -f docker-compose.final.yml up --build -d
 
 ### solution
 
-- **Data Fetching with RTK Query**: Efficiently fetch and cache data from the backend for users and homes.
-- **State Management**: Manage application state using Redux Toolkit, ensuring smooth transitions between states.
-- **Pagination**: Provides pagination to improve performance and efficiently handle large datasets.
-- **Responsive UI**: Tailwind CSS ensures that the app is responsive across different devices.
-- **Error Handling**: Comprehensive error handling for API requests and smooth UI behavior during failures.
-- **Interactive Home-User Relationships**: View and edit users related to a particular home with dynamic modals for easy interaction.
+I used the following **Techstack**
 
-## Tech Stack
 - **Vite-React**: Lightweight and fast React-based framework for building the frontend.
 - **Redux Toolkit (RTK Query)**: For state management, data fetching, caching, and quick UI updates.
 - **Tailwind CSS**: Utility-first CSS framework for responsive and maintainable styles.
 - **React Loading Skeleton**: Simple and effective loading states during data fetching.
 
-## Installation
+
+## To run this frontend vite-react app
 
 1. Clone the repository:
     ```bash
@@ -331,17 +326,53 @@ docker-compose -f docker-compose.final.yml up --build -d
     cd frontend
     ```
 
-2. Install the dependencies:
+2. Install the dependencies: (It will install all the dependencies from the package.json file which is in the frontend folder)
+   
+     ## Dependencies
+
+    The following dependencies were used to develop this project:
+    
+    | Dependency                   | Version  |
+    |-------------------------------|----------|
+    | @reduxjs/toolkit               | ^2.2.7   |
+    | react                          | ^18.3.1  |
+    | react-dom                      | ^18.3.1  |
+    | react-loading-skeleton         | ^3.4.0   |
+    | react-redux                    | ^9.1.2   |
+    | react-router-dom               | ^6.26.1  |
+    
+    ### Dev Dependencies
+    
+    These tools and configurations were used during development:
+    
+    | Dev Dependency                 | Version  |
+    |---------------------------------|----------|
+    | @eslint/js                      | ^9.9.0   |
+    | @types/react                    | ^18.3.3  |
+    | @types/react-dom                | ^18.3.0  |
+    | @vitejs/plugin-react            | ^4.3.1   |
+    | autoprefixer                    | ^10.4.20 |
+    | eslint                          | ^9.9.0   |
+    | eslint-plugin-react             | ^7.35.0  |
+    | eslint-plugin-react-hooks       | ^5.1.0-rc.0 |
+    | eslint-plugin-react-refresh     | ^0.4.9   |
+    | globals                         | ^15.9.0  |
+    | postcss                         | ^8.4.45  |
+    | tailwindcss                     | ^3.4.10  |
+    | vite                            | ^5.4.1   |
+    
+    To install these dependencies, simply run the following command:
+
     ```bash
     npm install
     ```
 
-3. Start the development server:
+4. Start the development server: (It will run the server locally on port 5173)
     ```bash
     npm run dev
     ```
 
-4. Access the app in your browser at `http://localhost:5173`.
+5. Access the app in your browser at `http://localhost:5173`.
 
 ## API Integration
 
@@ -352,26 +383,105 @@ This frontend interacts with the following REST APIs from the backend:
 - **/user/find-by-home**: Fetches all users related to a particular home.
 - **/home/update-users**: Updates the users related to a home.
 
-## Pagination
-
-Pagination has been implemented to improve performance.
-
 ## State Management & Data Fetching
 
 **RTK Query** is used to fetch and cache API data efficiently. Here’s how it works:
 - **Data Caching**: Improves performance by storing previously fetched data.
 - **Optimistic Updates**: Updates the UI instantly before the API request completes, making the app feel faster.
 - **Error Handling**: Gracefully handles API errors with appropriate error messages and fallback UI.
+  
+  location : frontend/src/utils/api/apiSlice.jsx
+  ```javascript
+    import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+    export const apiSlice = createApi({
+      reducerPath: 'api', 
+      baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BACKEND_API_URL}` }), // Setting base url where your backend runs
+    
+      tagTypes: ['Users', 'Homes'], // To manage cache invalidation and data refetching efficiently
+      endpoints: (builder) => ({ 
+    
+        // GET : user/find-all
+        // To Retrieve all the users
+        getUsers: builder.query({ 
+          query: () => 'user/find-all',
+          providesTags: ['Users'],
+        }),
+    
+        // GET : home/find-by-user/${username}
+        // To Retrieve all the homes corresponding to a user
+        getHomesByUser: builder.query({
+          query: ({ username }) => `home/find-by-user/${username}`,
+          providesTags:  ['Homes'],
+        }),
+    
+        // GET : user/find-by-home/${streetName}
+        // To Retrieve all the users corresponding to a home
+        getUsersByHome: builder.query({
+          query: (streetName) => `user/find-by-home/${encodeURIComponent(streetName)}`,
+          providesTags:['Users'],
+        }),
+    
+        // PUT : home/update-users
+        // To Update users corresponding to home
+        updateUsersForHome: builder.mutation({
+          query: ({ street_name, users }) => (
+            {
+            url: 'home/update-users',
+            method: 'PUT',
+            body: { street_name, users },
+          }),
+          // For caching and refetching the data for realtime updates
+          invalidatesTags: (result, error, arg) => [
+           'Homes',
+           'Users'
+          ],
+        }),
+      }),
+    });
+    
+    export const {
+      useGetUsersQuery,
+      useGetHomesByUserQuery,
+      useGetUsersByHomeQuery,
+      useUpdateUsersForHomeMutation,
+    } = apiSlice;
+  ```
+
 
 ## Tailwind CSS for Styling
 
-Tailwind CSS is used for styling the UI. It allows for quick customization and ensures that the app is responsive across different screen sizes, including mobile, tablet, and desktop.
+Tailwind CSS is used for styling the UI.
 
-### Key Tailwind Utilities:
-- `flex`, `grid`, and `block` for layout.
-- `bg-gray-100`, `bg-blue-500`, etc., for background colors.
-- `text-sm`, `text-lg`, and `text-center` for text styling.
-- `p-4`, `m-2`, etc., for spacing.
+To configure tailwing in our application : 
+1. Installing tailwind and generating tailwind.config.js and postcss.config.js
+  ```bash
+    npm install -D tailwindcss postcss autoprefixer
+    npx tailwindcss init -p
+  ```
+2. adding the paths to all of our template files in tailwind.config.js file.
+   ```javascript
+      export default {
+        content: [
+          "./index.html",
+          "./src/**/*.{js,ts,jsx,tsx}",
+        ],
+        theme: {
+          extend: {},
+        },
+        plugins: [],
+      }
+   ```
+3. Adding tailwind directives to our index.css file
+   ```css
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+   ```
+   
+## Pagination
+
+Pagination has been implemented to improve performance.
 
 ## Error Handling
 
