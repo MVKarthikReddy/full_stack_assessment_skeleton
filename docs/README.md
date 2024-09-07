@@ -374,6 +374,14 @@ I used the following **Techstack**
 
 5. Access the app in your browser at `http://localhost:5173`.
 
+## Environment Variables
+
+`.env` file in the backend directory:
+
+```plaintext
+  BACKEND_URL = "http://localhost:3000"
+```
+
 ## API Integration
 
 This frontend interacts with the following REST APIs from the backend:
@@ -596,14 +604,14 @@ Before running this backend, ensure that you have the following installed:
 
 ## Environment Variables
 
-`.env` file in the root directory:
+`.env` file in the backend directory:
 
 ```plaintext
-DB_HOST=localhost
-DB_PORT=3306
-DB_USERNAME=db_user
-DB_PASSWORD=6equj5_db_user
-DB_DATABASE=home_db
+  DB_USER_NAME = "db_user"
+  DB_PASS = "6equj5_db_user"
+  DB_NAME = "home_db"
+  DB_TYPE = "mysql"
+  FRONTEND_URL = "http://localhost:5173"
 ```
 
  With the help of `@nestjs/config` package we can access these variables in Nest.js
