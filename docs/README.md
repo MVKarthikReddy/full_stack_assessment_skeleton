@@ -153,6 +153,7 @@ To normalise it I created three more tables:
    - **Columns**:
      - `username` (Primary Key)
      - `email`
+       
     ```sql
     CREATE TABLE user (
     username VARCHAR(255) PRIMARY KEY,
@@ -183,6 +184,7 @@ To normalise it I created three more tables:
    - **Columns**:
      - `username` (Foreign Key referencing `user.username`)
      - `street_address` (Foreign Key referencing `home.street_address`)
+       
      ```sql
      CREATE TABLE user_home_tb (
           username VARCHAR(255),
