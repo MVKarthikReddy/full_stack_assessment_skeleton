@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Home } from 'src/typeorm/entities/Home';
 import { User } from 'src/typeorm/entities/User';
@@ -14,13 +14,20 @@ export class HomeService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>, // For intecting User entity (table)
+
+    @InjectRepository(UserHome)
+    private readonly userHomeRepository: Repository<UserHome>,
   ) {}
 
   // This query retrieves homes correspinding to a particular user
   async findHomesByUser(username: string) {
     const homes = await this.homeRepository
       .createQueryBuilder('home')
-      .innerJoin('user_home_tb', 'uh', 'uh.street_name = home.street_name')
+      .innerJoin(
+        'user_home_tb',
+        'uh',
+        'uh.street_address = home.street_address',
+      )
       .where('uh.username = :username', { username })
       .getMany();
 
@@ -28,30 +35,27 @@ export class HomeService {
   }
 
   // This will update the junction table (i.e. users -> homes and homes -> users) and returns the updated values
-  async updateUsersForHome(updateUserHomeDto: UpdateUsersDto): Promise<Home> {
-    const { street_name, users } = updateUserHomeDto;
+  async updateUsersForHome(updateUserHomeDto: UpdateUsersDto) {
+    const { street_address, users } = updateUserHomeDto; // destructuring the DTO
 
-    // To find the home entity by street_name, including its existing users
     const home = await this.homeRepository.findOne({
-      where: { street_name },
-      relations: ['users'], // Ensure the users relationship is loaded
+      where: { street_address: street_address },
+      relations: ['users'],
     });
 
     if (!home) {
-      throw new Error('Home not found');
+      throw new NotFoundException('Home not found');
     }
 
-    // To Find all the users by their usernames
-    const usernames = await this.userRepository.findByIds(users);
+    // To Find users to attach
+    const userHomes = await this.userRepository.findByIds(users);
 
-    if (!users || users.length === 0) {
-      throw new Error('No users found for the provided usernames');
-    }
+    // To Update the users related to this home
+    home.users = userHomes;
 
-    // To Update the users associated with the home (ensure users is an array)
-    home.users = usernames;
+    // To Save the updated home entity, this will update the user_home_tb table
+    await this.homeRepository.save(home);
 
-    // To Save the updated home entity (this will automatically update the junction table)
-    return await this.homeRepository.save(home); // This will now return a single updated home
+    return home
   }
 }

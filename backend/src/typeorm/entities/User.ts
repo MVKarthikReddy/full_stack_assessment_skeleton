@@ -5,8 +5,10 @@ import {
   PrimaryColumn,
   JoinTable,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
 import { Home } from './Home';
+import { UserHome } from './UserHome';
 
 // This entity corresponds to user table in the db
 @Entity({ name: 'user' })
@@ -17,14 +19,9 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @ManyToMany(() => Home, (home) => home.users, { cascade: true })
-  @JoinTable({
-    name: 'user_home_tb', // This defines the name of the junction table
-    joinColumn: { name: 'username', referencedColumnName: 'username' }, // User FK
-    inverseJoinColumn: {
-      name: 'street_name',
-      referencedColumnName: 'street_name',
-    }, // Home FK
-  })
+  @OneToMany(() => UserHome, (userHome) => userHome.home)
+  userHomes: UserHome[];
+
+  @ManyToMany(() => Home, (home) => home.users)
   homes: Home[];
 }

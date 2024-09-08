@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module';
 import { HomeModule } from './home/home.module';
 import { Home } from './typeorm/entities/Home';
 import { ConfigModule } from '@nestjs/config';
+import { UserHome } from './typeorm/entities/UserHome';
+
 
 @Module({
   imports: [
@@ -22,8 +24,8 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USER_NAME,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      entities: [User, Home], // Entities are the classes that represent the Tables in the database
-      synchronize: true,
+      entities: [User, Home, UserHome], // Entities are the classes that represent the Tables in the database
+      synchronize: false,
     }),
     UsersModule,
     HomeModule,

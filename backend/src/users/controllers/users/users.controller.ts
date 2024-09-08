@@ -18,7 +18,7 @@ export class UsersController {
   // GET : user/find-by-home/:streetName -> param
   // To retrieve all the users of a particular home 
   @Get('find-by-home/:streetName')
-  async findByHome(@Param('streetName') streetName: string): Promise<User[]> {
+  async findByHome(@Param('streetName') streetName: string) {
     return this.userService.findUsersByHome(streetName);
   }
 }

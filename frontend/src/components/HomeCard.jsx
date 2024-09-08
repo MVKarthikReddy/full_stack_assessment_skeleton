@@ -14,7 +14,7 @@ const HomeCard = ({ home, currentUsername }) => {
     
             <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col justify-between">
                 <div className="p-4 font-semibold">
-                    <h2 className='text-xl font-bold py-2'>{home.street_name}</h2>
+                    <h2 className='text-xl font-bold py-2'>{home.street_address}</h2>
                     <p >List Price: ${home.list_price}</p>
                     <p>State: {home.state}</p>
                     <p>Zip: {home.zip}</p>
@@ -32,10 +32,10 @@ const HomeCard = ({ home, currentUsername }) => {
                 </div> 
                     {showModal && (
                         <EditUsersModal
-                        streetName={home.street_name}
-                        onClose={() => setShowModal(false)}
-                        isOpen={true}
-                        currentUsername={currentUsername}
+                            streetName={home.street_address}
+                            onClose={() => setShowModal(false)}
+                            isOpen={true}
+                            currentUsername={currentUsername}
                         />
                     )}
                 

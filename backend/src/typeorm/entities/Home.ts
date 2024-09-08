@@ -1,11 +1,20 @@
-import { Column, Entity, ManyToMany, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from './User';
+import { UserHome } from './UserHome';
 
 // This entity corresponds to home table in the db
 @Entity({ name: 'home' })
 export class Home {
-  @PrimaryColumn()
-  street_name: string;
+  @PrimaryGeneratedColumn()
+  street_address: string;
 
   @Column()
   state: string;
@@ -25,7 +34,17 @@ export class Home {
   @Column('decimal')
   list_price: number;
 
-  // A many to many relationship 
-  @ManyToMany(() => User, (user) => user.homes)
+  @OneToMany(() => UserHome, (userHome) => userHome.user)
+  userHomes: UserHome[];
+
+  @ManyToMany(() => User, (user) => user.homes, { cascade: true })
+  @JoinTable({
+    name: 'user_home_tb',
+    joinColumn: {
+      name: 'street_address',
+      referencedColumnName: 'street_address',
+    },
+    inverseJoinColumn: { name: 'username', referencedColumnName: 'username' },
+  })
   users: User[];
 }

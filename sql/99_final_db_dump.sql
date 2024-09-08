@@ -7,6 +7,7 @@ USE home_db;
 -- To drop existing tables if they exist to avoid conflicts
 DROP TABLE IF EXISTS home;
 DROP TABLE IF EXISTS user;
+Drop TABLE IF EXISTS user_home_tb;
 
 -- To Create the user table to store user data
 CREATE TABLE user (
@@ -17,7 +18,7 @@ CREATE TABLE user (
 -- To Create the home table to store home data 
 CREATE TABLE home (
     street_address VARCHAR(255) PRIMARY KEY,
-    state VARCHAR(255) NOT NULL,
+    state VARCHAR(50) NOT NULL,
     zip VARCHAR(10) NOT NULL,
     sqft DECIMAL(10,2) NOT NULL,
     beds INT NOT NULL,
@@ -39,14 +40,29 @@ INSERT INTO user (username, email)
 SELECT DISTINCT username, email
 FROM user_home; 
 
+-- select * from user;
+
 -- To insert home data into the home table excluding user data
 INSERT INTO home (street_address, state, zip, sqft, beds, baths, list_price)
 SELECT DISTINCT street_address, state, zip, sqft, beds, baths, list_price
 FROM user_home;
 
+-- SELECT * FROM home;
+
 -- To insert data into the user_home_tb junction table from user_home table
 INSERT INTO user_home_tb (username, street_address)
 SELECT username, street_address
 FROM user_home;
+
+-- SELECT * FROM user_home_tb;
+
+
+
+
+
+
+
+
+
 
 

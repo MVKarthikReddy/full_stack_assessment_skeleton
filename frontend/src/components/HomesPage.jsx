@@ -97,7 +97,7 @@ const HomesPage = () => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
               {currentRecords.map((home) => (
-                <HomeCard key={home.street_name} home={home} currentUsername={selectedUser} />
+                <HomeCard key={home.street_address} home={home} currentUsername={selectedUser} />
               ))}
             </div>
           </div>

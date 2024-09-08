@@ -1,70 +1,9 @@
-// import React, { useState, useEffect } from 'react';
-// import { useGetUsersQuery, useGetUsersByHomeQuery, useUpdateUsersForHomeMutation } from '../utils/api/apiSlice'
-
-// const EditUsersModal = ({ streetName, onClose, currentUsername }) => {
-  // const { data: allUsers, isLoading: usersLoading } = useGetUsersQuery();
-  // const { data: homeUsers, isLoading: homeUsersLoading } = useGetUsersByHomeQuery(streetName);
-  // const [updateUsersForHome] = useUpdateUsersForHomeMutation();
-
-  // const [selectedUsers, setSelectedUsers] = useState([]);
-  // const [error, setError] = useState('');
-
-  // useEffect(() => {
-  //   if (homeUsers) {
-  //     setSelectedUsers(homeUsers.map((user) => user.username));
-  //   }
-  // }, [homeUsers]);
-
-  // const handleCheckboxChange = (username) => {
-  //   setSelectedUsers((prevSelected) =>
-  //     prevSelected.includes(username)
-  //       ? prevSelected.filter((user) => user !== username)
-  //       : [...prevSelected, username]
-  //   );
-  // };
-
-  // const handleSave = async () => {
-  //   if (selectedUsers.length === 0) {
-  //     setError('At least one user must be selected.');
-  //     return;
-  //   }
-  //   setError('');
-  //   await updateUsersForHome({ street_name: streetName, usernames: selectedUsers });
-  //   onClose();
-  // };
-
-//   if (usersLoading || homeUsersLoading) return <p>Loading...</p>;
-
-//   return (
-//     <div className="modal">
-//       <h2>Edit Users for {streetName}</h2>
-//       {allUsers.map((user) => (
-//         <div key={user.username}>
-//           <input
-//             type="checkbox"
-//             id={user.username}
-//             name={user.username}
-//             checked={selectedUsers.includes(user.username)}
-//             onChange={() => handleCheckboxChange(user.username)}
-//           />
-//           <label htmlFor={user.username}>{user.username}</label>
-//         </div>
-//       ))}
-//       {error && <p className="error">{error}</p>}
-//       <button onClick={onClose}>Cancel</button>
-//       <button onClick={handleSave} disabled={selectedUsers.length === 0}>
-//         Save
-//       </button>
-//     </div>
-//   );
-// };
-
-// export default EditUsersModal;
 
 import React, { useState, useEffect } from 'react';
 import { useGetUsersByHomeQuery, useGetUsersQuery, useUpdateUsersForHomeMutation } from '../utils/api/apiSlice';
 
 const EditUserModal = ({ streetName, onClose, isOpen, currentUsername }) => {
+  console.log(streetName, onClose, isOpen, currentUsername)
 
   // Getting all the users
   const { data: allUsers, isLoading: usersLoading } = useGetUsersQuery();
@@ -99,7 +38,7 @@ const EditUserModal = ({ streetName, onClose, isOpen, currentUsername }) => {
     }
     setError('');
 
-    await updateUsersForHome({ street_name: streetName, users: selectedUsers });
+    await updateUsersForHome({ street_address: streetName, users: selectedUsers });
     onClose();
   };
 
